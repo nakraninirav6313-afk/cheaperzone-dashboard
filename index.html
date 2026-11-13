@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cheaperzone Telegram Post Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700;800&family=Noto+Sans+Gujarati:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f5fb;--card:#fff;--ink:#14162b;--mute:#6b6f86;--line:#e4e6f0;--pri:#3b2fd6;--pri2:#ff7a1a;--ok:#12a150;--bad:#e5484d}
+*{box-sizing:border-box}
+body{margin:0;font-family:Urbanist,"Noto Sans Gujarati",system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(120deg,#2a1fb8,#5b2fd6 60%,#ff7a1a);color:#fff;padding:18px 24px 70px}
+.top{display:flex;align-items:center;gap:12px;max-width:1150px;margin:auto}
+.logo{font-weight:800;font-size:22px;letter-spacing:.3px}
+.logo small{display:block;font-weight:600;font-size:12px;opacity:.85}
+.sp{flex:1}
+.btn{border:0;border-radius:10px;padding:10px 16px;font:inherit;font-weight:700;cursor:pointer}
+.btn.ghost{background:rgba(255,255,255,.18);color:#fff}
+.btn.pri{background:var(--pri);color:#fff}
+.btn.org{background:var(--pri2);color:#fff}
+.btn.line{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+main{max-width:1150px;margin:-52px auto 40px;padding:0 16px}
+.searchwrap{position:relative;background:var(--card);border-radius:16px;box-shadow:0 10px 30px rgba(20,22,60,.12);padding:14px}
+.searchwrap input{width:100%;border:2px solid var(--line);border-radius:12px;padding:15px 16px 15px 46px;font:inherit;font-size:18px;outline:0}
+.searchwrap input:focus{border-color:var(--pri)}
+.searchwrap .ic{position:absolute;left:30px;top:30px;font-size:20px;opacity:.5}
+.meta{font-size:13px;color:var(--mute);margin:8px 4px 0}
+#sugg{position:absolute;left:14px;right:14px;top:70px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 34px rgba(20,22,60,.16);max-height:470px;overflow:auto;z-index:20;display:none}
+.si{display:flex;align-items:center;gap:12px;padding:9px 12px;cursor:pointer;border-bottom:1px solid #f0f1f6}
+.si:hover,.si.act{background:#f2f0ff}
+.si img{width:48px;height:48px;object-fit:contain;border-radius:8px;background:#fafafa;border:1px solid var(--line)}
+.si .n{font-weight:700;font-size:14px}
+.si .c{font-size:12px;color:var(--mute)}
+.si .p{margin-left:auto;text-align:right;font-weight:800;white-space:nowrap}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
+.tag.out{background:#ffe8e8;color:var(--bad)}
+.tag.in{background:#e3f7ea;color:var(--ok)}
+.grid{display:grid;grid-template-columns:1.05fr 1fr;gap:18px;margin-top:18px}
+.card{background:var(--card);border-radius:16px;box-shadow:0 4px 16px rgba(20,22,60,.06);padding:18px}
+.card h3{margin:0 0 12px;font-size:16px}
+.empty{color:var(--mute);text-align:center;padding:60px 20px}
+.prev{display:flex;gap:16px}
+.prev img{width:230px;height:230px;object-fit:contain;border:1px solid var(--line);border-radius:12px;background:#fff}
+.f{margin-bottom:10px}
+.f label{display:block;font-size:12px;font-weight:700;color:var(--mute);margin-bottom:4px}
+.f input,.f textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font:inherit;font-size:14px}
+.f textarea{min-height:190px;resize:vertical;line-height:1.45}
+.row{display:flex;gap:10px}
+.row .f{flex:1}
+.tg{background:#e6ebf5;border-radius:14px;padding:12px;max-height:620px;overflow:auto}
+.bub{background:#fff;border-radius:12px;overflow:hidden;max-width:380px;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.bub img{width:100%;display:block;background:#fff}
+.bub .t{padding:10px 12px;font-size:14px;white-space:pre-wrap;word-break:break-word;line-height:1.4}
+.bub .t a{color:#2a7bd6;text-decoration:none}
+.cnt{font-size:12px;color:var(--mute);margin-top:6px}
+.cnt.bad{color:var(--bad);font-weight:700}
+.acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+#log{font-size:13px;max-height:260px;overflow:auto}
+#log div{padding:7px 0;border-bottom:1px dashed var(--line)}
+.ok{color:var(--ok);font-weight:700}.err{color:var(--bad);font-weight:700}
+#queue{font-size:13px}
+#queue .q{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0f1f6}
+#queue .q img{width:34px;height:34px;object-fit:contain}
+#queue .q b{flex:1;font-weight:600}
+#queue .x{cursor:pointer;color:var(--bad);font-weight:800;padding:0 6px}
+.modal{position:fixed;inset:0;background:rgba(10,12,30,.5);display:none;align-items:center;justify-content:center;z-index:50}
+.modal .box{background:#fff;border-radius:16px;padding:22px;width:min(560px,94vw);max-height:92vh;overflow:auto}
+.modal h2{margin:0 0 6px}
+.help{font-size:13px;color:var(--mute);line-height:1.55}
+.help ol{padding-left:18px;margin:8px 0}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#14162b;color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;display:none;z-index:60}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.prev{flex-direction:column}.prev img{width:100%;height:auto}}
+</style>
+</head>
+<body>
+<header><div class="top">
+  <div class="logo">CHEAPERZONE <small>Telegram પોસ્ટ ડેશબોર્ડ · @Cheaperzonee</small></div>
+  <div class="sp"></div>
+  <span id="botst" style="font-size:13px;font-weight:600;opacity:.9"></span>
+  <button class="btn ghost" onclick="openSet()">⚙️ સેટિંગ</button>
+</div></header>
+
+<main>
+  <div class="searchwrap">
+    <span class="ic">🔍</span>
+    <input id="q" placeholder="કોઈ પણ પ્રોડક્ટ શોધો… (દા.ત. scissor, fan mop, car, nail)" autocomplete="off" autofocus>
+    <div id="sugg"></div>
+    <div class="meta">કુલ <b id="tot"></b> પ્રોડક્ટ · ડેટા અપડેટ: <b id="upd">12-11-2026</b> (દર રાત્રે 12 વાગે નવી પ્રોડક્ટ ઉમેરાય છે) · ↑↓ થી પસંદ કરો, Enter દબાવો</div>
+  </div>
+
+  <div class="grid">
+    <div class="card" id="edit"><div class="empty">ઉપર પ્રોડક્ટ શોધીને તેના પર ક્લિક કરો 👆<br><br>પછી અહીં ફોટો, ભાવ અને કીવર્ડ તૈયાર મળશે.</div></div>
+    <div>
+      <div class="card"><h3>📱 Telegram માં આવી દેખાશે</h3><div class="tg" id="tgp"><div class="empty" style="padding:30px">પ્રિવ્યૂ અહીં દેખાશે</div></div><div class="cnt" id="cnt"></div></div>
+      <div class="card" style="margin-top:18px"><h3>🧺 લાઇન (એકસાથે પોસ્ટ કરવા) <span id="qn" class="tag in">0</span></h3><div id="queue"><div class="help">"લાઇનમાં ઉમેરો" દબાવીને ઘણી પ્રોડક્ટ ભેગી કરો, પછી એક ક્લિકમાં બધી પોસ્ટ કરો.</div></div>
+        <div class="acts"><button class="btn org" id="qpost" onclick="postQueue()" disabled>🚀 લાઇનની બધી પોસ્ટ કરો</button><button class="btn line" onclick="clearQ()">ખાલી કરો</button></div></div>
+      <div class="card" style="margin-top:18px"><h3>🕘 થયેલી પોસ્ટ</h3><div id="log"></div></div>
+    </div>
+  </div>
+</main>
+
+<div class="modal" id="set"><div class="box">
+  <h2>⚙️ Telegram જોડાણ</h2>
+  <div class="help">એક જ વાર કરવાનું:
+    <ol>
+      <li>Telegram માં <b>@BotFather</b> ખોલો → <b>/newbot</b> → નામ આપો (દા.ત. Cheaperzone Poster).</li>
+      <li>BotFather જે <b>token</b> આપે તે નીચે નાખો.</li>
+      <li>@Cheaperzonee ચૅનલ → Administrators → <b>Add Admin</b> → તમારો bot ઉમેરો (Post Messages ચાલુ).</li>
+      <li>"ચેક કરો" દબાવો.</li>
+    </ol>
+    Token ફક્ત તમારા આ કમ્પ્યુટરના browser માં જ સચવાય છે, બીજે ક્યાંય નહીં જાય.</div>
+  <div class="f"><label>Bot Token</label><input id="tok" type="password" placeholder="123456:ABC-..."></div>
+  <div class="f"><label>ચૅનલ</label><input id="chan" value="@Cheaperzonee"></div>
+  <div class="f"><label>Quantity નંબર</label><input id="phone" value="7863087857"></div>
+  <div id="setmsg" class="help"></div>
+  <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+  <h2 style="font-size:18px">🟢 WhatsApp (Whapi)</h2>
+  <div class="help">whapi.cloud → Dashboard માંથી <b>Token</b> કૉપી કરીને અહીં નાખો, પછી "ચૅનલ/ગ્રુપ લાવો" દબાવી જ્યાં પોસ્ટ કરવી હોય તે ✔ કરો.</div>
+  <div class="f"><label>Whapi Token</label><input id="watok" type="password" placeholder="Whapi token"></div>
+  <div class="acts" style="margin-top:0"><button class="btn line" onclick="loadWA()">📋 ચૅનલ/ગ્રુપ લાવો</button></div>
+  <div id="walist" class="help" style="max-height:200px;overflow:auto;margin-top:8px"></div>
+  <div class="acts"><button class="btn pri" onclick="saveSet(true)">ચેક કરો અને સેવ</button><button class="btn line" onclick="closeSet()">બંધ</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+let P=[];
+const IMG='https://api.cheaperzoneretail.in/images/uploads/w-600/';
+const HD=h=>'https://images.weserv.nl/?url='+encodeURIComponent('api.cheaperzoneretail.in/images/uploads/w-600/'+h)+'&w=1800&h=1800&fit=contain&bg=white&sharp=1.2&output=jpg&q=95';
+const SIZES=['w-1200','w-900','w-600','w-400','w-200','original'];
+const urlFor=(h,s)=>s==='original'?'https://api.cheaperzoneretail.in/attachments/original/'+h:'https://api.cheaperzoneretail.in/images/uploads/'+s+'/'+h;
+const sizeCache={};
+function probe(u){return new Promise(r=>{const im=new Image();im.onload=()=>r(im.naturalWidth>10);im.onerror=()=>r(false);im.src=u;setTimeout(()=>r(false),8000)})}
+async function bestUrl(h){if(sizeCache[h])return sizeCache[h];for(const s of SIZES){const u=urlFor(h,s);if(await probe(u)){sizeCache[h]=u;return u}}return null}
+const hdOf=u=>'https://images.weserv.nl/?url='+encodeURIComponent(u.replace(/^https:\/\//,''))+'&w=1800&h=1800&fit=contain&bg=white&sharp=1.2&output=jpg&q=95';
+const LINKS=['📱 Android: https://app.cheaperzone.in','🍎 iPhone: https://ios.cheaperzone.in','📢 WhatsApp: https://wa.cheaperzone.in','📢 Telegram: https://tg.cheaperzone.in','📍 Dabholi: https://db.cheaperzone.in','📍 Yogi Chowk: https://yc.cheaperzone.in','🌐 Website: https://www.cheaperzone.in'];
+const ls={get(k,d){try{const v=localStorage.getItem('cz_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('cz_'+k,JSON.stringify(v))}catch(e){}}};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const toast=m=>{const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3200)};
+
+/* ---------- keyword generator ---------- */
+const CATKW={
+'HOME & KITCHEN PRODUCTS':['Kitchen Accessories','Home Use Product','Kitchen Gadget','Household Item','Kitchen Tool'],
+'CAR ACCESSORIES':['Car Accessories','Car Interior Product','Car Gadget','Bike & Car Use','Auto Accessories'],
+'BEAUTY PRODUCTS':['Beauty Product','Women Beauty Item','Makeup Accessories','Ladies Product','Salon Use'],
+'KIDS TOYS':['Kids Toy','Baby Toy','Children Game','Return Gift Toy','Birthday Gift for Kids'],
+'MOBILE ACCESSORIES':['Mobile Accessories','Phone Gadget','Smartphone Accessory','Mobile Stand & Holder'],
+'HEALTH & PERSONAL CARE':['Health Care Product','Personal Care','Body Care','Daily Use Product'],
+'MASSAGE PRODUCTS':['Massager','Body Pain Relief','Massage Tool','Relaxation Product'],
+'HOME DECOR':['Home Decor','Room Decoration','Showpiece','Gift Item','Living Room Decor'],
+'BATHROOM ACCESSORIES':['Bathroom Accessories','Bathroom Organizer','Bath Product','Washroom Item'],
+'SAFETY PRODUCTS':['Safety Product','Security Item','Protection Tool','Home Safety'],
+'GARDEN & OUTDOOR':['Garden Product','Outdoor Use','Gardening Tool','Balcony Item'],
+'KIDS STATIONERY':['Kids Stationery','School Stationery','Student Item','Return Gift'],
+'KIDS STATIONARY':['Kids Stationery','School Stationery','Student Item','Return Gift'],
+'OFFICE STATIONERY PRODUCT':['Office Stationery','Desk Accessories','Office Use'],
+'FASHION PRODUCTS':['Fashion Accessories','Trendy Item','Style Product'],
+'BAGS':['Bag','Travel Bag','Carry Bag','Storage Bag'],
+'PET PRODUCT':['Pet Product','Dog & Cat Accessories','Pet Care'],
+'EXERCISE PRODUCTS':['Fitness Product','Gym Equipment','Exercise Tool','Home Workout'],
+'NIGHT LAMP':['Night Lamp','LED Light','Room Light','Decor Lamp'],
+'Electric Product ':['Electric Product','Electrical Gadget','Electronic Item'],
+'CLEANING PRODUCT ':['Cleaning Product','Cleaning Tool','Home Cleaning'],
+'HARDWARE PRODUCTS ':['Hardware Tool','DIY Tool','Repair Tool'],
+'SKIN CARE':['Skin Care','Face Care','Beauty Care'],
+'PICNIC':['Picnic Item','Outdoor Travel','Camping Product'],
+'BABY PRODUCT ':['Baby Product','Baby Care','Newborn Item'],
+'HAIR BRUSHES':['Hair Brush','Hair Comb','Hair Styling Tool'],
+'PACKING MATERIAL':['Packing Material','Packaging Item','Courier Packing'],
+'GLASS PRODUCT':['Glass Product','Drinking Glass','Glassware'],
+'BOTTLE PRODUCT':['Water Bottle','Sipper Bottle','Drinking Bottle'],
+'FURNITURE':['Furniture','Home Furniture','Folding Furniture'],
+'HUMIDIFIER':['Humidifier','Air Diffuser','Mist Humidifier'],
+'SOFT TOYS':['Soft Toy','Teddy','Plush Toy','Gift Toy'],
+'CLOCK':['Wall Clock','Table Clock','Clock'],
+'COMPUTER PRODUCT':['Computer Accessories','Laptop Accessories','PC Gadget'],
+'CRAFT PRODUCT':['Craft Item','DIY Craft','Art & Craft'],
+'MASK':['Mask','Face Mask','Protection Mask']
+};
+const SYN={scissor:['Kainchi','Shears','Cutter'],knife:['Chaku','Cutter'],bottle:['Sipper','Water Bottle'],bag:['Pouch','Carry Bag'],light:['Lamp','LED Light'],lamp:['Light','LED Lamp'],toy:['Game','Kids Toy'],clip:['Clutcher','Hair Clip'],holder:['Stand','Organizer'],stand:['Holder','Rack'],organizer:['Storage Box','Rack'],cleaning:['Safai','Cleaner'],mop:['Pocha','Duster'],duster:['Jhadu','Mop'],brush:['Cleaner Brush'],cover:['Protector','Case'],mat:['Pad','Rug'],tape:['Adhesive Tape'],net:['Jali','Mesh'],mesh:['Net','Jali'],lock:['Tala','Security Lock'],comb:['Kanghi','Hair Comb'],bucket:['Balti'],glass:['Kaach'],box:['Container','Storage Box'],massager:['Massage Machine','Pain Relief'],fan:['Pankha','Cooling Fan'],mirror:['Darpan','Aaina'],hanger:['Cloth Hanger','Kapde Hanger'],sticker:['Wall Sticker','Self Adhesive'],perfume:['Fragrance','Scent','Air Freshener'],freshener:['Perfume','Fragrance'],slipper:['Chappal','Footwear'],umbrella:['Chhatri'],rope:['Rassi'],spoon:['Chamach'],plate:['Thali'],pillow:['Takiya','Cushion'],towel:['Rumal','Napkin'],kettle:['Electric Kettle'],trimmer:['Shaver','Hair Trimmer'],charger:['Charging Adapter'],cable:['Charging Cable','Data Cable'],earphone:['Earbuds','Headphone'],speaker:['Bluetooth Speaker','Music Speaker'],wallet:['Purse','Card Holder'],purse:['Wallet','Hand Bag'],garbage:['Kachra','Dustbin','Trash'],dustbin:['Kachra Peti','Garbage Bin']};
+const tc=s=>s.toLowerCase().replace(/\b[a-z]/g,c=>c.toUpperCase());
+const USE={scissor:'Kitchen',knife:'Kitchen',mop:'Home Cleaning',duster:'Home Cleaning',cloth:'Cleaning',bottle:'Office & Gym',light:'Home Decor',lamp:'Bedroom',toy:'Kids',clip:'Girls',comb:'Hair',brush:'Cleaning',cover:'Car',holder:'Bathroom',stand:'Mobile',organizer:'Wardrobe',freshener:'Car',perfume:'Car',massager:'Pain Relief',roller:'Foot',sealant:'Bathroom',lens:'Mobile',pen:'Nail Art',nails:'Women',tape:'Tailor',stick:'Hair',net:'Window',mesh:'Window',kit:'Travel',sheet:'Air Fryer',sheets:'Air Fryer',wax:'Hair',painting:'Room Decor',art:'Room Decor',box:'Storage',lock:'Home Security',hanger:'Wardrobe',mat:'Kitchen',mirror:'Makeup',fan:'Summer',charger:'Mobile',cable:'Mobile',speaker:'Party',watch:'Gift',keychain:'Gift',lipbalm:'Winter',heater:'Wax',stapler:'Office',cleaner:'Teeth'};
+function genKW(p){
+  const name=p[0];const out=[];const add=s=>{s=tc(s.replace(/\s+/g,' ').trim());if(s.length>2&&s.length<=42&&!out.some(o=>o.toLowerCase()===s.toLowerCase()))out.push(s)};
+  const clean=name.replace(/\(.*?\)/g,' ').replace(/\b\d+\s*(PCS|PC|PIECE|PIECES|SET OF \d+|IN 1)\b/gi,' ').replace(/[*\/]/g,' ').replace(/\s+/g,' ').trim();
+  add(clean);
+  const core=clean.split(/\s+(?:WITH|FOR|AND|&)\s+/i)[0].trim();add(core);
+  const w=core.split(' ').filter(x=>x.length>2&&!/^\d+$/.test(x));
+  const noun=(w[w.length-1]||core).toLowerCase();
+  if(w.length>=3)add(w.slice(-2).join(' '));
+  if(w.length>=4)add(w.slice(-3).join(' '));
+  w.forEach(x=>{const k=x.toLowerCase();(SYN[k]||SYN[k.replace(/s$/,'')]||[]).forEach(s=>{add(core.replace(new RegExp('\\b'+x+'\\b','i'),s));if(s.includes(' '))add(s)})});
+  const short=w.length>=3?w.slice(-2).join(' '):core;
+  const use=USE[noun]||USE[noun.replace(/s$/,'')];
+  const T=[c=>c+' Wholesale',c=>c+' Wholesale Surat',c=>c+' Low Price',c=>'Best '+c,c=>c+' Online',c=>'Buy '+c,c=>c+' Supplier',c=>c+' For Reselling',c=>c+' Dropshipping',c=>'Cheap '+c,c=>c+' Bulk Order',c=>c+' Importer',c=>c+' Best Quality',c=>'New '+c,c=>c+' Combo',c=>c+' Gift Item',c=>c+' Factory Price',c=>c+' Reseller Price',c=>c+' B2B',c=>c+' Market Surat',c=>'Sasta '+c,c=>c+' Trending',c=>c+' Hot Selling',c=>c+' Latest'];
+  if(use)add(short+' For '+use);
+  for(const f of T){if(out.length>=20)break;add(f(short.length<core.length&&out.length%2?short:core));}
+  for(const f of T){if(out.length>=20)break;add(f(short));}
+  return out.slice(0,20);
+}
+async function fixImg(el){if(el.dataset.tried)return;el.dataset.tried=1;const u=await bestUrl(el.dataset.h);if(u)el.src=u}
+/* ---------- search ---------- */
+let IDX=[];
+async function loadData(){
+  try{const r=await fetch('products.json?v='+Date.now(),{cache:'no-store'});const j=await r.json();P=j.products||j;ls.set('cache',P);if(j.updated)$('upd').textContent=j.updated}
+  catch(e){P=ls.get('cache',[]);if(!P.length&&window.CZ_FALLBACK)P=window.CZ_FALLBACK;}
+  IDX=P.map((p,i)=>({i,s:(p[0]+' '+p[5]).toLowerCase()}));$('tot').textContent=P.length.toLocaleString('en-IN');
+  const q=$('q').value;if(q){hits=search(q);renderSugg()}
+}
+let cur=null,act=-1,hits=[];
+function search(q){
+  q=q.toLowerCase().trim();if(!q)return[];
+  const ws=q.split(/\s+/);
+  let r=IDX.filter(x=>ws.every(w=>x.s.includes(w)));
+  if(r.length<5){const extra=IDX.filter(x=>!r.includes(x)&&ws.some(w=>w.length>2&&x.s.includes(w.replace(/s$/,''))));r=r.concat(extra)}
+  const sc=x=>{const n=P[x.i][0].toLowerCase();return (n.startsWith(q)?0:n.includes(q)?1:2)*10+(P[x.i][4]?0:5)};
+  return r.sort((a,b)=>sc(a)-sc(b)).slice(0,40).map(x=>x.i);
+}
+function renderSugg(){
+  const s=$('sugg');if(!hits.length){s.style.display=$('q').value.trim()?'block':'none';s.innerHTML='<div class="si"><span class="c">કોઈ પ્રોડક્ટ ન મળી — બીજો શબ્દ લખો</span></div>';if(!$('q').value.trim())s.style.display='none';return}
+  s.innerHTML=hits.map((i,k)=>{const p=P[i];return `<div class="si${k===act?' act':''}" data-i="${i}"><img loading="lazy" src="${IMG+p[3]}" data-h="${p[3]}" onerror="fixImg(this)" alt=""><div><div class="n">${esc(p[0])}</div><div class="c">${esc(p[5])} · કાર્ટન ${p[2]}</div></div><div class="p">₹${p[1]}<br>${p[4]?'<span class="tag in">સ્ટૉક</span>':'<span class="tag out">Out of stock</span>'}</div></div>`}).join('');
+  s.style.display='block';
+}
+$('q').addEventListener('input',e=>{hits=search(e.target.value);act=-1;renderSugg()});
+$('q').addEventListener('keydown',e=>{
+  if(e.key==='ArrowDown'){act=Math.min(act+1,hits.length-1);renderSugg();e.preventDefault()}
+  else if(e.key==='ArrowUp'){act=Math.max(act-1,0);renderSugg();e.preventDefault()}
+  else if(e.key==='Enter'&&hits.length){pick(hits[act<0?0:act])}
+  else if(e.key==='Escape'){$('sugg').style.display='none'}
+});
+$('sugg').addEventListener('click',e=>{const d=e.target.closest('.si[data-i]');if(d)pick(+d.dataset.i)});
+document.addEventListener('click',e=>{if(!e.target.closest('.searchwrap'))$('sugg').style.display='none'});
+
+/* ---------- editor ---------- */
+function pick(i){
+  const p=P[i];cur={i,name:p[0],price:p[1],carton:p[2],img:p[3],stock:p[4],kw:genKW(p).join('\n')};cur.kw=fitKW(cur);
+  $('sugg').style.display='none';$('q').value=p[0];
+  $('edit').innerHTML=`<h3>✏️ પોસ્ટ તૈયાર કરો</h3>
+  ${p[4]?'':'<div class="tag out" style="margin-bottom:10px">⚠️ વેબસાઇટ પર આ પ્રોડક્ટ Out of stock છે</div>'}
+  <div class="prev"><img src="${IMG+p[3]}" data-h="${p[3]}" onerror="fixImg(this)" alt=""><div style="flex:1">
+   <div class="f"><label>પ્રોડક્ટ નામ</label><input id="e_name" value="${esc(p[0])}"></div>
+   <div class="row"><div class="f"><label>ભાવ (RS)</label><input id="e_price" value="${p[1]}"></div><div class="f"><label>કાર્ટન (Pc)</label><input id="e_ct" value="${p[2]}"></div></div>
+   <div class="help">કેટેગરી: ${esc(p[5])}</div></div></div>
+  <div class="f" style="margin-top:12px"><label>કીવર્ડ (એક લાઇનમાં એક) — વધુ ઉમેરશો તો Telegram સર્ચમાં વધુ દેખાશે</label><textarea id="e_kw">${esc(cur.kw)}</textarea></div>
+  <div class="f"><label>ક્યાં પોસ્ટ કરવી?</label><div id="targets">${targetsHTML()}</div></div>
+  <div class="acts"><button class="btn pri" id="postbtn" onclick="postNow()">✅ પોસ્ટ કરો</button><button class="btn line" onclick="addQ()">➕ લાઇનમાં ઉમેરો</button></div>`;
+  ['e_name','e_price','e_ct','e_kw'].forEach(id=>$(id).addEventListener('input',preview));
+  preview();
+}
+function readCur(){return {...cur,name:$('e_name').value.trim(),price:$('e_price').value.trim(),carton:$('e_ct').value.trim(),kw:$('e_kw').value}}
+function caption(c){
+  let kw=c.kw.split('\n').map(s=>s.trim()).filter(Boolean);
+  const ph=ls.get('phone','7863087857');
+  return `<b><u>${esc(c.name)}</u></b>\n\n${kw.map(esc).join('\n')}\n\n<b><u>PRICE : ${esc(c.price)} RS l ${esc(c.carton)} Pc Best Price</u></b> 🔥\n\n<b>𝗤𝗨𝗔𝗡𝗧𝗜𝗧𝗬 𝗕𝗘𝗦𝗧 𝗥𝗔𝗧𝗘</b> - ${esc(ph)}\n\n${LINKS.join('\n')}`;
+}
+function fitKW(c){let kw=c.kw.split('\n');while(kw.length>5&&plainLen(caption({...c,kw:kw.join('\n')}))>1024)kw.pop();return kw.join('\n')}
+const plainLen=h=>h.replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').length;
+function preview(){
+  const c=readCur();const cap=caption(c);const n=plainLen(cap);
+  $('tgp').innerHTML=`<div class="bub"><img src="${sizeCache[c.img]||IMG+c.img}" data-h="${c.img}" onerror="fixImg(this)" alt=""><div class="t">${cap.replace(/(https:\/\/[^\s<]+)/g,'<a>$1</a>')}</div></div>`;
+  const el=$('cnt');el.textContent=`કૅપ્શન: ${n} / 1024 અક્ષર`+(n>1024?' — વધારે છે, થોડા કીવર્ડ ઓછા કરો':'');el.className='cnt'+(n>1024?' bad':'');
+  const b=$('postbtn');if(b)b.disabled=n>1024;
+}
+
+/* ---------- telegram ---------- */
+async function tg(method,body){
+  const t=ls.get('tok','');if(!t)throw new Error('પહેલાં ⚙️ સેટિંગમાં Bot Token નાખો');
+  const r=await fetch(`https://api.telegram.org/bot${t}/${method}`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+  const j=await r.json();if(!j.ok)throw new Error(j.description||'Telegram error');return j.result;
+}
+async function sendPost(c){
+  const cap=caption(c);if(plainLen(cap)>1024)throw new Error('કૅપ્શન 1024 અક્ષરથી લાંબું છે');
+  const chat=ls.get('chan','@Cheaperzonee');
+  const src=await bestUrl(c.img);if(!src)throw new Error('આ પ્રોડક્ટનો ફોટો વેબસાઇટ પર મળ્યો નહીં');
+  try{return await tg('sendPhoto',{chat_id:chat,photo:hdOf(src),caption:cap,parse_mode:'HTML'})}
+  catch(e){ if(/photo|image|file|url|content|Bad Request: wrong/i.test(e.message)) return await tg('sendPhoto',{chat_id:chat,photo:src,caption:cap,parse_mode:'HTML'}); throw e}
+}
+function log(name,ok,msg){const L=ls.get('log',[]);L.unshift({t:new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}),name,ok,msg});ls.set('log',L.slice(0,200));renderLog()}
+function renderLog(){const L=ls.get('log',[]);$('log').innerHTML=L.length?L.map(x=>`<div>${x.ok?'<span class="ok">✔ પોસ્ટ થઈ</span>':'<span class="err">✖ ભૂલ</span>'} · <b>${esc(x.name)}</b> <span style="color:var(--mute)">· ${x.t}</span>${x.ok?'':'<br><span class="err" style="font-weight:400">'+esc(x.msg)+'</span>'}</div>`).join(''):'<div class="help">હજી કોઈ પોસ્ટ નથી.</div>'}
+async function postNow(){
+  if(!cur)return;const c=readCur();const b=$('postbtn');b.disabled=true;b.textContent='⏳ પોસ્ટ થાય છે…';
+  try{const n=await sendAll(c);log(c.name,true);toast('✅ '+n+' જગ્યાએ પોસ્ટ થઈ: '+c.name);$('q').value='';$('q').focus()}
+  catch(e){log(c.name,false,e.message);toast('❌ '+e.message);if(/Token/.test(e.message))openSet()}
+  b.disabled=false;b.textContent='✅ પોસ્ટ કરો';
+}
+
+/* ---------- whatsapp ---------- */
+const WA='https://gate.whapi.cloud';
+async function wa(path,method,body){const t=ls.get('watok','');if(!t)throw new Error('⚙️ સેટિંગમાં Whapi Token નાખો');
+  const r=await fetch(WA+path,{method:method||'GET',headers:{'Authorization':'Bearer '+t,'Content-Type':'application/json','Accept':'application/json'},body:body?JSON.stringify(body):undefined});
+  let j={};try{j=await r.json()}catch(e){}
+  if(!r.ok)throw new Error('WhatsApp: '+(j.error&&(j.error.message||j.error.details)||j.message||('HTTP '+r.status)));return j}
+function waCaption(c){
+  const kw=c.kw.split('\n').map(s=>s.trim()).filter(Boolean);const ph=ls.get('phone','7863087857');
+  return `*${c.name}*\n\n${kw.join('\n')}\n\n*PRICE : ${c.price} RS l ${c.carton} Pc Best Price* 🔥\n\n*QUANTITY BEST RATE* - ${ph}\n\n${LINKS.join('\n')}`}
+async function loadWA(){
+  ls.set('watok',$('watok').value.trim());const box=$('walist');box.textContent='લાવી રહ્યા છીએ…';
+  try{const items=[];
+    try{const n=await wa('/newsletters?count=100');(n.newsletters||[]).forEach(x=>{if(!x.role||/owner|admin/i.test(x.role))items.push({id:x.id,name:'📢 ચૅનલ: '+(x.name||x.id)})})}catch(e){}
+    const g=await wa('/groups?count=500');(g.groups||[]).forEach(x=>items.push({id:x.id,name:(x.type==='community'||x.announcements||x.announce?'👥 કમ્યુનિટી/અનાઉન્સ: ':'💬 ગ્રુપ: ')+(x.name||x.id)}));
+    const sel=ls.get('watargets',[]).map(x=>x.id);
+    box.innerHTML=items.length?items.map(x=>`<label style="display:flex;gap:8px;padding:4px 0;color:var(--ink)"><input type="checkbox" class="wat" value="${esc(x.id)}" data-n="${esc(x.name)}" ${sel.includes(x.id)?'checked':''} onchange="saveWAT()"> ${esc(x.name)}</label>`).join(''):'કોઈ ચૅનલ/ગ્રુપ ન મળ્યું — આ નંબર ચૅનલ/કમ્યુનિટીમાં admin છે?';
+  }catch(e){box.innerHTML='<span class="err">❌ '+esc(e.message)+'</span>'}}
+function saveWAT(){ls.set('watargets',[...document.querySelectorAll('.wat:checked')].map(x=>({id:x.value,name:x.dataset.n})))}
+function targetsHTML(){const off=ls.get('off',{});const T=[{id:'tg',name:'✈️ Telegram ('+ls.get('chan','@Cheaperzonee')+')'}].concat(ls.get('watargets',[]));
+  return T.map(x=>`<label style="display:flex;gap:8px;padding:3px 0;font-size:14px"><input type="checkbox" class="tgt" value="${esc(x.id)}" ${off[x.id]?'':'checked'} onchange="saveTgt()"> ${esc(x.name)}</label>`).join('')+(ls.get('watargets',[]).length?'':'<div class="help">WhatsApp ઉમેરવા ⚙️ સેટિંગમાં Whapi જોડો.</div>')}
+function saveTgt(){const off={};document.querySelectorAll('.tgt').forEach(x=>{if(!x.checked)off[x.value]=1});ls.set('off',off)}
+function chosen(){const off=ls.get('off',{});return ['tg'].concat(ls.get('watargets',[]).map(x=>x.id)).filter(id=>!off[id])}
+async function sendAll(c){
+  const ids=chosen();if(!ids.length)throw new Error('ક્યાં પોસ્ટ કરવી તે ✔ કરો');const errs=[];let ok=0;
+  for(const id of ids){try{
+      if(id==='tg'){await sendPost(c)}
+      else{const src=await bestUrl(c.img);if(!src)throw new Error('ફોટો ન મળ્યો');await wa('/messages/image','POST',{to:id,media:hdOf(src),caption:waCaption(c)})}
+      ok++}catch(e){errs.push(e.message)}}
+  if(errs.length)throw new Error((ok?ok+' જગ્યાએ પોસ્ટ થઈ, ':'')+errs.join(' | '));
+  return ok}
+/* ---------- queue ---------- */
+let Q=ls.get('queue',[]);
+function renderQ(){ls.set('queue',Q);$('qn').textContent=Q.length;$('qpost').disabled=!Q.length;
+  $('queue').innerHTML=Q.length?Q.map((c,k)=>`<div class="q"><img src="${IMG+c.img}" data-h="${c.img}" onerror="fixImg(this)"><b>${esc(c.name)}</b>₹${esc(c.price)}<span class="x" onclick="Q.splice(${k},1);renderQ()">✕</span></div>`).join(''):'<div class="help">"લાઇનમાં ઉમેરો" દબાવીને ઘણી પ્રોડક્ટ ભેગી કરો, પછી એક ક્લિકમાં બધી પોસ્ટ કરો.</div>'}
+function addQ(){if(!cur)return;const c=readCur();if(plainLen(caption(c))>1024){toast('કૅપ્શન લાંબું છે');return}Q.push(c);renderQ();toast('➕ લાઇનમાં ઉમેરાઈ ('+Q.length+')');$('q').value='';$('q').focus()}
+function clearQ(){Q=[];renderQ()}
+async function postQueue(){
+  const b=$('qpost');b.disabled=true;let ok=0;
+  while(Q.length){const c=Q[0];b.textContent=`⏳ ${ok+1} પોસ્ટ થાય છે… (${Q.length} બાકી)`;
+    try{await sendAll(c);log(c.name,true);ok++;Q.shift();renderQ()}
+    catch(e){log(c.name,false,e.message);toast('❌ '+e.message+' — લાઇન અટકાવી');break}
+    await new Promise(r=>setTimeout(r,chosen().some(x=>x!=='tg')?45000:3500));}
+  b.textContent='🚀 લાઇનની બધી પોસ્ટ કરો';b.disabled=!Q.length;if(ok)toast(`✅ ${ok} પોસ્ટ થઈ ગઈ`);
+}
+
+/* ---------- settings ---------- */
+function openSet(){$('tok').value=ls.get('tok','');$('chan').value=ls.get('chan','@Cheaperzonee');$('phone').value=ls.get('phone','7863087857');$('setmsg').textContent='';$('watok').value=ls.get('watok','');const wt=ls.get('watargets',[]);$('walist').innerHTML=wt.length?'✔ પસંદ કરેલ: '+wt.map(x=>esc(x.name)).join(', '):'';$('set').style.display='flex'}
+function closeSet(){ls.set('watok',$('watok').value.trim());$('set').style.display='none';if(cur){const el=$('targets');if(el)el.innerHTML=targetsHTML()}}
+async function saveSet(check){
+  ls.set('tok',$('tok').value.trim());ls.set('chan',$('chan').value.trim()||'@Cheaperzonee');ls.set('phone',$('phone').value.trim());ls.set('watok',$('watok').value.trim());
+  if(!check)return;$('setmsg').textContent='ચેક થાય છે…';
+  try{const me=await tg('getMe',{});const ch=await tg('getChat',{chat_id:ls.get('chan')});const adm=await tg('getChatMember',{chat_id:ls.get('chan'),user_id:me.id});
+    const okAdm=adm.status==='administrator'&&adm.can_post_messages!==false;
+    $('setmsg').innerHTML=okAdm?`<span class="ok">✅ બરાબર! @${esc(me.username)} → ${esc(ch.title)} માં પોસ્ટ કરી શકશે.</span>`:`<span class="err">Bot મળ્યો (@${esc(me.username)}) પણ ચૅનલમાં admin નથી. ચૅનલ → Administrators → Add Admin માં ઉમેરો.</span>`;
+    botStatus()}
+  catch(e){$('setmsg').innerHTML='<span class="err">❌ '+esc(e.message)+'</span>'}
+}
+function botStatus(){$('botst').textContent=ls.get('tok','')?'🟢 Bot જોડાયેલો':'🔴 Bot જોડવાનો બાકી'}
+botStatus();renderLog();renderQ();loadData();
+if(!ls.get('tok',''))setTimeout(openSet,400);
+</script>
+</body>
+</html>
